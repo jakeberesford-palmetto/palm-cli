@@ -4,6 +4,7 @@ from pygit2 import Repository
 from click import secho
 import yaml
 
+from .timing import timing
 
 class PalmConfig:
     """Palm config class
@@ -21,9 +22,11 @@ class PalmConfig:
         self.config = self._get_config()
         self.branch = self._get_current_branch()
 
+    @timing
     def _get_current_branch(self) -> str:
         return Repository(str(self.project_root)).head.shorthand
 
+    @timing
     def _get_config(self) -> object:
         config_path = self.project_root / '.palm' / 'config.yaml'
         if not config_path.exists():
@@ -39,6 +42,7 @@ class PalmConfig:
 
         return yaml.safe_load(config_path.read_text())
 
+    @timing
     def validate_branch(self) -> None:
         """Raises SystemExit if branch is protected."""
         if self.branch not in self.protected_branches:

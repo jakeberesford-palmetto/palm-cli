@@ -10,6 +10,7 @@ from .environment import Environment
 from .palm_config import PalmConfig
 from .plugin_manager import PluginManager
 from .utils import is_cmd_file, cmd_name_from_file, run_on_host
+from .timing import timing
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix="PALM")
 
@@ -46,6 +47,7 @@ class PalmCLI(click.MultiCommand):
             **attrs,
         )
 
+    @timing
     def _commands_from_dir(self, dir) -> List[str]:
         commands = []
         for filename in os.listdir(dir):
@@ -53,6 +55,7 @@ class PalmCLI(click.MultiCommand):
                 commands.append(cmd_name_from_file(filename))
         return commands
 
+    @timing
     def list_commands(self, ctx) -> List[str]:
         cmds = self.plugin_manager.plugin_command_list
         dedupe = set(cmds)
@@ -62,6 +65,7 @@ class PalmCLI(click.MultiCommand):
         cmds = filter(lambda x: x not in project_excluded_commands, cmds)
         return cmds
 
+    @timing
     def get_command(self, ctx, cmd_name: str) -> click.Command:
         try:
             if self.plugin_manager.is_plugin_command(cmd_name):
@@ -78,7 +82,7 @@ class PalmCLI(click.MultiCommand):
             return
         return mod.cli
 
-
+@timing
 def get_version():
     try:
         version = pkg_resources.require("palm")[0].version
@@ -86,7 +90,7 @@ def get_version():
         version = 'unknown'
     return version
 
-
+@timing
 def required_dependencies_ready():
 
     docker_checks = (

@@ -7,14 +7,17 @@ from palm.utils import run_on_host
 from palm.plugin_manager import PluginManager
 from .palm_config import PalmConfig
 from .code_generator import CodeGenerator
+from .timing import timing
 
 
 class Environment:
+    @timing
     def __init__(self, plugin_manager: PluginManager, palm_config: PalmConfig):
         self.home = Path.cwd()
         self.palm = palm_config
         self.plugin_manager = plugin_manager
 
+    @timing
     def run_in_docker(
         self, cmd: str, env_vars: Optional[dict] = {}
     ) -> Tuple[bool, str]:
@@ -36,6 +39,7 @@ class Environment:
             return (True, 'Success! Palm completed with exit code 0')
         return (False, f"Fail! Palm exited with code {ex_code}")
 
+    @timing
     def run_in_shell(self, cmd: str, env_vars: Optional[dict] = {}):
         """deprecated - use run_in_docker"""
 
@@ -48,6 +52,7 @@ class Environment:
         success, msg = self.run_in_docker(cmd, env_vars)
         click.secho(msg, fg="green" if success else "red")
 
+    @timing
     def run_on_host(
         self,
         cmd: str,
@@ -57,6 +62,7 @@ class Environment:
         """context wrapper for :obj:`palm.utils.run_on_host`"""
         return run_on_host(cmd, check, capture_output)
 
+    @timing
     def import_module(self, module_name: str, module_path: Path):
         """Imports a module from a path
 
@@ -81,11 +87,13 @@ class Environment:
             return
         return mod
 
+    @timing
     def generate(
         self, template_path: Path, target_path: Path, replacements: dict
     ) -> str:
         return CodeGenerator(template_path, target_path, replacements).run()
 
+    @timing
     def _build_env_vars(self, env_vars: dict) -> List[str]:
         env_vars_list = []
         for key in env_vars.keys():

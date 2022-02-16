@@ -4,12 +4,15 @@ from .plugins.base import BasePlugin as Plugin
 from importlib import import_module
 from click import secho
 
+from .timing import timing
+
 
 class PluginManager:
     def __init__(self) -> None:
         self.plugins = {}
         self.plugin_command_dict = {}
 
+    @timing
     def load_plugins(self, plugins: List) -> None:
         """Loads a list of plugins, typically from palm config
 
@@ -19,6 +22,7 @@ class PluginManager:
         for plugin in plugins:
             self.load_plugin(plugin)
 
+    @timing
     def load_plugin(self, plugin_name: str) -> Plugin:
         """Load a single plugin by name
 
@@ -45,6 +49,7 @@ class PluginManager:
 
         return plugin
 
+    @timing
     def extend_plugin_command_mapping(self, plugin_name: str) -> None:
         """Merges the plugin commands to the PluginManager plugin_command_dict
         Note that this is using dict merging. In the event of 2 plugins having the
@@ -58,6 +63,7 @@ class PluginManager:
             **self.plugins[plugin_name].command_map(),
         }
 
+    @timing
     def is_plugin_command(self, command_name: str) -> bool:
         """Check whether a given command name comes from a plugin
 
@@ -69,6 +75,7 @@ class PluginManager:
         """
         return command_name in self.plugin_command_list
 
+    @timing
     def command_spec(self, command_name) -> importlib.machinery.ModuleSpec:
         """Get the executable module spec for the plugin command
 
