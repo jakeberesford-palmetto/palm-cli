@@ -3,6 +3,13 @@ import subprocess
 
 
 @click.command("build")
-def cli():
+@click.option("--compose-file", default="docker-compose.yml")
+def cli(compose_file):
     """Rebuilds the image for the current working directory"""
-    subprocess.run(["docker-compose", "build"], check=True)
+    build_cmd = [
+        "docker", 
+        "buildx", 
+        "bake", 
+        "-f", compose_file
+    ]
+    subprocess.run(build_cmd, check=True)
